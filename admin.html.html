@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — PN Fragrances</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c1510;
+    --bg-panel: #111916;
+    --bg-card: #141e18;
+    --bg-input: rgba(255,255,255,0.04);
+    --gold: #D8C3A5;
+    --accent: #A68A64;
+    --accent-light: #c4a882;
+    --white: #ffffff;
+    --muted: #7a8a7e;
+    --border: rgba(166,138,100,0.18);
+    --border-hover: rgba(166,138,100,0.4);
+    --danger: rgba(200,80,80,0.85);
+    --success: rgba(60,180,100,0.85);
+    --sidebar-w: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--gold); font-family: 'Montserrat', sans-serif; font-weight: 300; min-height: 100vh; display: flex; }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+  /* ── SIDEBAR ── */
+  aside {
+    width: var(--sidebar-w);
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    padding: 2.5rem 1.8rem;
+    display: flex; flex-direction: column; gap: 0.4rem;
+    position: fixed; top: 0; bottom: 0; left: 0;
+    overflow-y: auto; z-index: 100;
+    transition: transform 0.35s;
+  }
+
+  .sidebar-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem; font-weight: 500;
+    color: var(--white); letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .sidebar-logo span { color: var(--accent); }
+
+  .sidebar-tag {
+    font-size: 0.6rem; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 2.2rem;
+  }
+
+  .sidebar-section {
+    font-size: 0.58rem; letter-spacing: 0.35em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 1.4rem 0 0.6rem; padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-link {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem; letter-spacing: 0.06em;
+    border-radius: 2px;
+    transition: all 0.25s;
+    cursor: pointer; border: none; background: none; width: 100%;
+    text-align: left;
+  }
+
+  .sidebar-link:hover, .sidebar-link.active {
+    color: var(--gold); background: rgba(166,138,100,0.07);
+  }
+
+  .sidebar-link.active { border-left: 2px solid var(--accent); }
+
+  .sidebar-icon { font-size: 0.9rem; min-width: 18px; }
+
+  .sidebar-bottom {
+    margin-top: auto; padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── MAIN ── */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1; padding: 2.5rem 2.5rem 4rem;
+    max-width: calc(100vw - var(--sidebar-w));
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topbar-left h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem; font-weight: 400; color: var(--white);
+  }
+
+  .topbar-left p {
+    font-size: 0.72rem; color: var(--muted);
+    letter-spacing: 0.08em; margin-top: 0.25rem;
+  }
+
+  .btn {
+    padding: 0.7rem 1.6rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em;
+    text-transform: uppercase; cursor: pointer;
+    border: none; transition: all 0.3s; font-weight: 500;
+  }
+
+  .btn-primary {
+    background: var(--accent); color: var(--bg);
+  }
+  .btn-primary:hover { background: var(--accent-light); }
+
+  .btn-outline {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+  }
+  .btn-outline:hover { border-color: var(--border-hover); color: var(--gold); }
+
+  .btn-danger {
+    background: transparent; border: 1px solid rgba(200,80,80,0.3);
+    color: rgba(200,80,80,0.7); padding: 0.4rem 0.9rem; font-size: 0.62rem;
+  }
+  .btn-danger:hover { background: rgba(200,80,80,0.1); border-color: rgba(200,80,80,0.6); color: #e05050; }
+
+  .btn-edit {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 0.4rem 0.9rem; font-size: 0.62rem;
+  }
+  .btn-edit:hover { border-color: var(--border-hover); color: var(--gold); }
+
+  .btn-secondary {
+    background: transparent; border: 1px solid rgba(166,138,100,0.3);
+    color: rgba(166,138,100,0.7); padding: 0.4rem 0.9rem; font-size: 0.62rem;
+  }
+  .btn-secondary:hover { background: rgba(166,138,100,0.1); border-color: var(--accent); color: var(--accent); }
+
+  /* ── STATS ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 1.5rem 1.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.62rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem;
+  }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem; font-weight: 300; color: var(--white); line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 0.65rem; color: var(--accent); margin-top: 0.3rem;
+  }
+
+  /* ── SEARCH & FILTER BAR ── */
+  .controls-bar {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 0.8rem; margin-bottom: 1.8rem;
+  }
+
+  .input-wrap { position: relative; flex: 1; min-width: 220px; }
+
+  .input-icon {
+    position: absolute; left: 0.9rem; top: 50%;
+    transform: translateY(-50%); color: var(--accent); pointer-events: none;
+  }
+
+  input[type="text"], input[type="url"], input[type="number"], input[type="file"],
+  select, textarea {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  input[type="text"]:not(.has-icon),
+  input[type="url"], input[type="number"], input[type="file"],
+  select, textarea {
+    padding-left: 1rem;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    background: rgba(166,138,100,0.05);
+  }
+
+  select { cursor: pointer; }
+  select option { background: #121f18; color: var(--gold); }
+
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-size: 0.62rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--muted);
+    font-weight: 500;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(166,138,100,0.07);
+    transition: background 0.25s;
+  }
+
+  tbody tr:hover { background: rgba(166,138,100,0.03); }
+
+  td { padding: 1rem; vertical-align: middle; }
+
+  .td-img {
+    width: 52px; height: 52px; object-fit: cover;
+    border: 1px solid var(--border);
+  }
+
+  .td-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; color: var(--white); font-weight: 400;
+  }
+
+  .td-cat {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border);
+    font-size: 0.6rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent);
+  }
+
+  .td-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+  /* ── MODAL ── */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 500; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    width: min(560px, 95vw);
+    max-height: 90vh; overflow-y: auto;
+    position: relative;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; color: var(--white);
+    margin-bottom: 0.4rem;
+  }
+
+  .modal-sub {
+    font-size: 0.68rem; color: var(--muted);
+    letter-spacing: 0.1em; margin-bottom: 2rem;
+  }
+
+  .modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: none; border: none; color: var(--muted);
+    font-size: 1.3rem; cursor: pointer; transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--gold); }
+
+  .form-group { margin-bottom: 1.3rem; }
+
+  .form-label {
+    display: block;
+    font-size: 0.62rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 0.8rem;
+    margin-top: 2rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem;
+    padding: 0.9rem 1.6rem;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    font-size: 0.75rem; letter-spacing: 0.1em;
+    color: var(--gold); z-index: 9999;
+    transform: translateY(20px); opacity: 0;
+    transition: all 0.35s; pointer-events: none;
+  }
+
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: rgba(60,180,100,0.5); color: #5dce88; }
+  #toast.error { border-color: rgba(200,80,80,0.5); color: #e05050; }
+
+  /* ── EMPTY ── */
+  .empty-msg {
+    text-align: center; padding: 4rem 0; color: var(--muted);
+  }
+  .empty-msg p:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem; color: var(--gold); margin-bottom: 0.4rem;
+  }
+
+  /* ── IMG PREVIEW ── */
+  #imgPreview {
+    width: 100%; height: 140px; object-fit: cover;
+    border: 1px solid var(--border); margin-top: 0.6rem;
+    display: none;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    aside { transform: translateX(-100%); }
+    aside.open { transform: translateX(0); }
+    main { margin-left: 0; max-width: 100vw; padding: 1.5rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .mobile-menu-btn { display: flex !important; }
+  }
+
+  @media (max-width: 550px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4) { display: none; }
+  }
+
+  .mobile-menu-btn {
+    display: none; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--border);
+    color: var(--gold); width: 38px; height: 38px;
+    cursor: pointer; font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .topbar-actions {
+    display: flex; gap: 0.8rem; align-items: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <p class="sidebar-logo">PN <span>Fragrances</span></p>
+  <p class="sidebar-tag">Painel Admin</p>
+
+  <p class="sidebar-section">Catálogo</p>
+  <button class="sidebar-link active" onclick="showSection('products')">
+    <span class="sidebar-icon">◈</span> Perfumes
+  </button>
+  <button class="sidebar-link" onclick="showSection('add')">
+    <span class="sidebar-icon">＋</span> Adicionar perfume
+  </button>
+
+  <p class="sidebar-section">Sistema</p>
+  <a href="index.html" class="sidebar-link" target="_blank">
+    <span class="sidebar-icon">↗</span> Ver site
+  </a>
+  <button class="sidebar-link" onclick="exportJSON()">
+    <span class="sidebar-icon">⬇</span> Exportar JSON
+  </button>
+  <button class="sidebar-link" onclick="openImportModal()">
+    <span class="sidebar-icon">⬆</span> Importar JSON
+  </button>
+
+  <div class="sidebar-bottom">
+    <button class="sidebar-link" onclick="if(confirm('Limpar TODOS os perfumes?')) { localStorage.removeItem(LS_KEY); loadData(); showToast('Dados limpos', 'error'); }">
+      <span class="sidebar-icon">⚠</span> Limpar dados
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <div style="display:flex; align-items:center; gap:1rem;">
+    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div class="topbar" style="flex:1; margin-bottom:0; padding-bottom:0; border:none;">
+      <div class="topbar-left" id="sectionTitle">
+        <h1>Perfumes</h1>
+        <p>Gerencie o catálogo completo</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" onclick="openImportModal()">⬆ Importar JSON</button>
+        <button class="btn btn-primary" onclick="openModal()">+ Adicionar Perfume</button>
+      </div>
+    </div>
+  </div>
+  <div style="border-bottom:1px solid var(--border); margin: 1.5rem 0 2rem;"></div>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <!-- SECTION: PRODUCTS -->
+  <div id="sectionProducts">
+    <div class="controls-bar">
+      <div class="input-wrap">
+        <span class="input-icon">⌕</span>
+        <input type="text" class="has-icon" id="adminSearch" placeholder="Pesquisar perfume..." oninput="renderTable()">
+      </div>
+      <select id="adminFilter" onchange="renderTable()" style="max-width:180px; padding-left:1rem;">
+        <option value="">Todas categorias</option>
+        <option value="Masculinos">Masculinos</option>
+        <option value="Femininos">Femininos</option>
+        <option value="Arabes">Árabes</option>
+        <option value="Nichados">Nichados</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Img</th>
+            <th>Nome</th>
+            <th>Categoria</th>
+            <th>ML</th>
+            <th>Preço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="productsTable"></tbody>
+      </table>
+      <div id="tableEmpty" class="empty-msg" style="display:none;">
+        <p>Nenhum perfume encontrado</p>
+        <p>Adicione um perfume ou ajuste o filtro</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL ADICIONAR/EDITAR -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 class="modal-title" id="modalTitle">Adicionar Perfume</h2>
+    <p class="modal-sub" id="modalSub">Preencha os dados do novo perfume</p>
+
+    <div class="form-group">
+      <label class="form-label">Nome *</label>
+      <input type="text" id="fName" placeholder="Ex: Dior Sauvage">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Categoria *</label>
+        <select id="fCategory">
+          <option value="Masculinos">Masculinos</option>
+          <option value="Femininos">Femininos</option>
+          <option value="Arabes">Árabes</option>
+          <option value="Nichados">Nichados</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ML *</label>
+        <input type="text" id="fMl" placeholder="Ex: 100ml">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Preço *</label>
+      <input type="text" id="fPrice" placeholder="Ex: R$ 599,00 ou Consultar">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Descrição *</label>
+      <textarea id="fDesc" placeholder="Breve descrição do perfume..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">URL da Imagem</label>
+      <input type="url" id="fImage" placeholder="https://..." oninput="previewImg()">
+      <img id="imgPreview" alt="Preview da imagem">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Salvar Perfume</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORTAR JSON -->
+<div class="modal-backdrop" id="importModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="closeImportModal()">✕</button>
+    <h2 class="modal-title">Importar JSON</h2>
+    <p class="modal-sub">Selecione um arquivo JSON com produtos para importar</p>
+
+    <div class="form-group">
+      <label class="form-label">Arquivo JSON *</label>
+      <input type="file" id="jsonFile" accept=".json" placeholder="Selecione o arquivo...">
+      <p style="font-size: 0.65rem; color: var(--muted); margin-top: 0.5rem;">
+        ℹ Produtos duplicados (por nome) serão ignorados. Novos produtos serão adicionados ao catálogo.
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="importJSON()">Importar Produtos</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  const LS_KEY = 'pn_fragrances_products';
+  let products = [];
+  let editingId = null;
+
+  /* ── FULL DATA (47 Products) ── */
+  const DEFAULT_PRODUCTS = [
+    {"id": 1, "name": "Dior Sauvage", "category": "Masculinos", "ml": "100ml", "description": "Selvagem e magnético. Uma explosão de pimenta de Sichuan e ambroxan que deixa um rastro inesquecível.", "price": "Consultar", "image": "https://lojadior.vtexassets.com/arquivos/ids/196440/3348901608053_00-thumbnew-sauvage-edp.jpg?v=638596910589130000"},
+    {"id": 2, "name": "Bleu de Chanel", "category": "Masculinos", "ml": "100ml", "description": "Sofisticação pura. Frescor cítrico com fundo amadeirado e almíscar, para o homem de gosto refinado.", "price": "Consultar", "image": "https://www.chanel.com/images/t_one/w_0.51,h_0.51,c_crop/q_auto:good,f_autoplus,fl_lossy,dpr_1.1/w_1020/bleu-de-chanel-eau-de-parfum-spray-3-4fl-oz--packshot-default-107360-9564894232606.jpg"},
+    {"id": 3, "name": "Acqua di Gio", "category": "Masculinos", "ml": "100ml", "description": "A essência do Mediterrâneo. Aquático, fresco e irresistível. Um clássico eterno de Giorgio Armani.", "price": "Consultar", "image": "https://fimgs.net/mdimg/perfume/o.410.jpg"},
+    {"id": 4, "name": "Allure Homme Sport", "category": "Masculinos", "ml": "100ml", "description": "Energia e elegância em harmonia. Notas de mandarina, sândalo e almíscar branco.", "price": "Consultar", "image": "https://www.chanel.com/images//t_one/w_0.51,h_0.51,c_crop/q_auto:good,f_auto,fl_lossy,dpr_1.1/w_620/allure-homme-sport-eau-de-toilette-spray-3-4fl-oz--packshot-default-123630-9564892856350.jpg"},
+    {"id": 5, "name": "One Million Elixir", "category": "Masculinos", "ml": "100ml", "description": "Opulência concentrada. Toranja dourada, rosa e patchouli criam uma assinatura inconfundível.", "price": "Consultar", "image": "https://www.lojaglamourosa.com/resources/medias/shop/products/shop-pf-03402-03-1-million-elixir-edp---200ml--1.jpg"},
+    {"id": 6, "name": "Invictus Parfum", "category": "Masculinos", "ml": "100ml", "description": "A versão mais intensa e animal do ícone Paco Rabanne. Guaiac, patchouli e almíscar negro.", "price": "Consultar", "image": "https://img.lojasrenner.com.br/item/927587142/original/3.jpg"},
+    {"id": 7, "name": "Bad Boy", "category": "Masculinos", "ml": "100ml", "description": "Provocante e sedutor. Uma dualidade entre frescor e escuridão — cedro caro e notas de couro.", "price": "Consultar", "image": "https://img.lojasrenner.com.br/item/549650318/original/11.jpg"},
+    {"id": 8, "name": "YSL Myself", "category": "Masculinos", "ml": "100ml", "description": "Autenticidade em estado puro. Mandarina, lavanda e baunilha compõem um fougère contemporâneo.", "price": "Consultar", "image": "https://epocacosmeticos.vteximg.com.br/arquivos/ids/715624/3614273852814.jpg?v=638689157186870000"},
+    {"id": 9, "name": "Good Girl", "category": "Femininos", "ml": "80ml", "description": "Ousadia e feminilidade. Jasmim sambac e tonka bean em um frasco icônico que é uma obra de arte.", "price": "Consultar", "image": "https://fimgs.net/mdimg/perfume-thumbs/375x500.39681.jpg"},
+    {"id": 10, "name": "Libre YSL", "category": "Femininos", "ml": "90ml", "description": "Liberdade em forma de perfume. Lavanda marroquina e baunilha madagascarense numa fusão poderosa.", "price": "Consultar", "image": "https://cdn.sistemawbuy.com.br/arquivos/a48e76d3b4ff8b6e919e194fd7dfcfed/produtos/6644dd64b39bc/ysl-libre-6644dd6534ec1.png"},
+    {"id": 11, "name": "La Vie Est Belle", "category": "Femininos", "ml": "75ml", "description": "A vida é linda e este perfume celebra isso. Íris, patchouli e pralinê — uma doçura luxuosa.", "price": "Consultar", "image": "https://images.tcdn.com.br/img/img_prod/1087072/perfume_feminino_la_vie_est_belle_lancome_eau_de_parfum_50ml_775_1_1d10467d7244b81091e6d6a1aa952b37.jpg"},
+    {"id": 12, "name": "Prada Paradoxe", "category": "Femininos", "ml": "90ml", "description": "A contradição como essência. Neroli, jasmim e almíscar branco num paradoxo olfativo viciante.", "price": "Consultar", "image": "https://www.drogasil.com.br/_next/image?url=https%3A%2F%2Fproduct-data.raiadrogasil.io%2Fimages%2F7503126.webp&w=3840&q=40"},
+    {"id": 13, "name": "Miss Dior", "category": "Femininos", "ml": "100ml", "description": "Elegância atemporal. Rosa de Grasse, peônia e almíscar branco — a feminilidade em sua forma mais pura.", "price": "Consultar", "image": "https://epocacosmeticos.vteximg.com.br/arquivos/ids/1100235/1.-3348901571432.jpg.jpg?v=638950931053930000"},
+    {"id": 14, "name": "Fame", "category": "Femininos", "ml": "80ml", "description": "Potência e feminilidade. Pera, mango e jasmim num frasco monumental — pura declaração de estilo.", "price": "Consultar", "image": "https://img.lojasrenner.com.br/item/675687373/original/1.jpg"},
+    {"id": 15, "name": "Olympéa", "category": "Femininos", "ml": "100ml", "description": "A deusa moderna. Água de baunilha salgada, jasmim e almíscar de caxemira — divino e contemporâneo.", "price": "Consultar", "image": "https://img.lojasrenner.com.br/item/546699351/original/1.jpg"},
+    {"id": 16, "name": "Lattafa Asad", "category": "Arabes", "ml": "100ml", "description": "A força do leão árabe. Oud escuro, especiarias orientais e almíscar animal numa composição poderosa.", "price": "Consultar", "image": "https://epocacosmeticos.vteximg.com.br/arquivos/ids/1292446-800-800/17581402186111.jpg?v=638998664977700000"},
+    {"id": 17, "name": "Fakhar Rosé", "category": "Arabes", "ml": "100ml", "description": "Rosa árabe em todo seu esplendor. Uma ode floral ao luxo oriental com fundo de oud e sândalo.", "price": "Consultar", "image": "https://cdn.awsli.com.br/600x1000/25/25674/produto/672639/fahar-rose1-mjxs80cncq.webp"},
+    {"id": 19, "name": "Xerjoff Erba Pura", "category": "Nichados", "ml": "100ml", "description": "Pureza siciliana. Laranja branca, bergamota e almíscar caro numa composição de rara delicadeza.", "price": "Consultar", "image": "https://m.media-amazon.com/images/I/51NcbXITOKL._AC_UF1000,1000_QL80_.jpg"},
+    {"id": 20, "name": "Nishane Hacivat X", "category": "Nichados", "ml": "100ml", "description": "Arte olfativa turca. Bergamota, patchouli e cedro de Atlas em uma composição que desafia categorias.", "price": "Consultar", "image": "https://http2.mlstatic.com/D_NQ_NP_813289-MLB98377717415_112025-O.webp"},
+    {"id": 21, "name": "Initio Oud for Greatness", "category": "Nichados", "ml": "90ml", "description": "Grandiosidade em cada gota. Oud selvagem, pimenta rosa e almíscar intenso para os que exigem o extraordinário.", "price": "Consultar", "image": "https://www.giraofertas.com.br/wp-content/uploads/2024/02/Oud-for-Greatness-Initio-Parfums-Prives-Eau-de-Parfum-02.jpg"},
+    {"id": 22, "name": "Delina La Rosée", "category": "Nichados", "ml": "75ml", "description": "O orvalho da rosa de Paramé. Litchi, peônia e almíscar branco numa poesia olfativa de rara beleza.", "price": "Consultar", "image": "https://fimgs.net/mdimg/perfume/o.66442.jpg"},
+    {"id": 23, "name": "212 VIP Men", "category": "Masculinos", "ml": "100ml", "description": "Energia urbana e exclusividade. Vodka gelada, especiarias e madeiras quentes em uma fragrância vibrante.", "price": "Consultar", "image": ""},
+    {"id": 24, "name": "CH HC EDT", "category": "Masculinos", "ml": "100ml", "description": "Elegância clássica com toque contemporâneo. Couro refinado, lavanda e madeiras nobres em perfeita harmonia.", "price": "Consultar", "image": ""},
+    {"id": 25, "name": "CH 212 NYC", "category": "Masculinos", "ml": "100ml", "description": "O espírito de Nova York em um frasco. Fresco, moderno e cheio de personalidade urbana.", "price": "Consultar", "image": ""},
+    {"id": 26, "name": "Club de Nuit", "category": "Masculinos", "ml": "105ml", "description": "Mistério e intensidade. Frutas cítricas, fumaça e madeiras escuras criam uma presença marcante.", "price": "Consultar", "image": ""},
+    {"id": 27, "name": "Azzaro Pour Homme", "category": "Masculinos", "ml": "100ml", "description": "Um clássico masculino atemporal. Lavanda, anis e vetiver numa assinatura sofisticada e poderosa.", "price": "Consultar", "image": ""},
+    {"id": 28, "name": "CH VIP Black", "category": "Masculinos", "ml": "100ml", "description": "Sedução noturna em sua forma mais elegante. Absinto, lavanda negra e baunilha intensa.", "price": "Consultar", "image": ""},
+    {"id": 29, "name": "CH HC Men", "category": "Masculinos", "ml": "100ml", "description": "Luxo discreto e masculinidade refinada. Notas amadeiradas e especiarias de presença envolvente.", "price": "Consultar", "image": ""},
+    {"id": 30, "name": "Calvin Klein Be", "category": "Masculinos", "ml": "100ml", "description": "Minimalista e versátil. Um aroma limpo e confortável que transmite autenticidade e liberdade.", "price": "Consultar", "image": ""},
+    {"id": 31, "name": "CK One", "category": "Masculinos", "ml": "100ml", "description": "O frescor icônico dos anos 90. Chá verde, bergamota e almíscar numa fragrância universal.", "price": "Consultar", "image": ""},
+    {"id": 32, "name": "Dior Fahrenheit", "category": "Masculinos", "ml": "100ml", "description": "Contraste entre calor e frescor. Couro, violeta e madeiras intensas em um clássico ousado.", "price": "Consultar", "image": ""},
+    {"id": 33, "name": "JPG Scandal Le Parfum", "category": "Masculinos", "ml": "100ml", "description": "Intensidade e sofisticação noturna. Caramelo, gerânio e madeiras escuras num rastro irresistível.", "price": "Consultar", "image": ""},
+    {"id": 34, "name": "Ralph Lauren Polo", "category": "Masculinos", "ml": "118ml", "description": "Elegância esportiva e clássica. Pinho, couro e tabaco numa fragrância tradicional e marcante.", "price": "Consultar", "image": ""},
+    {"id": 35, "name": "Prada Paradigme", "category": "Masculinos", "ml": "100ml", "description": "Modernidade sofisticada. Notas aromáticas e amadeiradas criam uma assinatura elegante e versátil.", "price": "Consultar", "image": ""},
+    {"id": 36, "name": "YSL Kouros", "category": "Masculinos", "ml": "100ml", "description": "Força e personalidade em estado puro. Especiarias, couro e almíscar numa fragrância intensa.", "price": "Consultar", "image": ""},
+    {"id": 37, "name": "Armani My Way", "category": "Femininos", "ml": "100ml", "description": "Uma jornada floral elegante. Flor de laranjeira, tuberosa e baunilha suave em perfeita harmonia.", "price": "Consultar", "image": ""},
+    {"id": 38, "name": "Good Girl Very Elixir", "category": "Femininos", "ml": "30ml", "description": "Sensualidade intensa e sofisticada. Cereja negra, rosa e baunilha em uma version irresistível.", "price": "Consultar", "image": ""},
+    {"id": 39, "name": "JPG Scandal Her Parfum Elixir", "category": "Femininos", "ml": "80ml", "description": "Doçura viciante e glamour absoluto. Flores brancas e caramelo numa fragrância extremamente sedutora.", "price": "Consultar", "image": ""},
+    {"id": 40, "name": "CH La Bomba", "category": "Femininos", "ml": "80ml", "description": "Explosão de feminilidade e elegância. Floral sofisticado com toque moderno e envolvente.", "price": "Consultar", "image": ""},
+    {"id": 41, "name": "Givenchy L'Interdit", "category": "Femininos", "ml": "80ml", "description": "Ousadia elegante. Flores brancas e vetiver criam uma fragrância intensa e sofisticada.", "price": "Consultar", "image": ""},
+    {"id": 42, "name": "Givenchy L'Interdit Rouge", "category": "Femininos", "ml": "80ml", "description": "Mistério e sensualidade em cada detalhe. Gengibre vermelho e flores brancas num contraste viciante.", "price": "Consultar", "image": ""},
+    {"id": 43, "name": "JPG Scandal", "category": "Femininos", "ml": "80ml", "description": "Elegância provocante. Mel, gardênia e patchouli numa fragrância intensa e inesquecível.", "price": "Consultar", "image": ""},
+    {"id": 44, "name": "CH 212 VIP Rosé Elixir", "category": "Femininos", "ml": "80ml", "description": "Brilho, glamour e feminilidade moderna. Rosas cremosas e frutas vermelhas em perfeita celebração.", "price": "Consultar", "image": ""},
+    {"id": 45, "name": "Maison Alhambra Como Moiselle", "category": "Arabes", "ml": "100ml", "description": "Sofisticação árabe inspirada na feminilidade clássica. Floral elegante com toque oriental refinado.", "price": "Consultar", "image": ""},
+    {"id": 46, "name": "Al Wataniah Durrat", "category": "Arabes", "ml": "85ml", "description": "Luxo oriental sofisticado. Flores delicadas e madeiras quentes em uma fragrância envolvente.", "price": "Consultar", "image": ""},
+    {"id": 47, "name": "Al Wataniah Attar Wesal", "category": "Arabes", "ml": "100ml", "description": "A tradição árabe em forma de perfume. Oud refinado e especiarias quentes numa experiência luxuosa.", "price": "Consultar", "image": ""},
+    {"id": 48, "name": "Xerjoff Accento", "category": "Nichados", "ml": "100ml", "description": "Luxo italiano refinado. Frutas exóticas, jasmim e almíscar branco em perfeita sofisticação.", "price": "Consultar", "image": ""}
+  ];
+
+  /* ── LOAD / SAVE ── */
+  function loadData() {
+    const saved = localStorage.getItem(LS_KEY);
+    products = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+    renderStats();
+    renderTable();
+  }
+
+  function saveData() {
+    localStorage.setItem(LS_KEY, JSON.stringify(products));
+  }
+
+  /* ── STATS ── */
+  function renderStats() {
+    const cats = ['Masculinos','Femininos','Arabes','Nichados'];
+    const labels = ['Masculinos','Femininos','Árabes','Nichados'];
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = `
+      <div class="stat-card">
+        <p class="stat-label">Total de Perfumes</p>
+        <p class="stat-value">${products.length}</p>
+        <p class="stat-sub">no catálogo</p>
+      </div>
+      ${cats.map((c,i) => `
+        <div class="stat-card">
+          <p class="stat-label">${labels[i]}</p>
+          <p class="stat-value">${products.filter(p=>p.category===c).length}</p>
+          <p class="stat-sub">perfumes</p>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  /* ── TABLE ── */
+  function renderTable() {
+    const query = (document.getElementById('adminSearch')?.value || '').toLowerCase();
+    const cat   = document.getElementById('adminFilter')?.value || '';
+    let filtered = products.filter(p => {
+      const mQ = !query || p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query);
+      const mC = !cat || p.category === cat;
+      return mQ && mC;
+    });
+
+    const tbody = document.getElementById('productsTable');
+    const empty = document.getElementById('tableEmpty');
+
+    if (!filtered.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    const catDisplay = c => c === 'Arabes' ? 'Árabes' : c;
+
+    tbody.innerHTML = filtered.map(p => `
+      <tr>
+        <td><img class="td-img" src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=200&q=60'"></td>
+        <td><p class="td-name">${p.name}</p></td>
+        <td><span class="td-cat">${catDisplay(p.category)}</span></td>
+        <td style="color:var(--muted); font-size:0.75rem;">${p.ml}</td>
+        <td style="color:var(--accent); font-size:0.72rem; letter-spacing:0.08em;">${p.price}</td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-edit" onclick="editProduct(${p.id})">Editar</button>
+            <button class="btn btn-danger" onclick="deleteProduct(${p.id})">Remover</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  /* ── MODAL ADICIONAR/EDITAR ── */
+  function openModal(id = null) {
+    editingId = id;
+    const modal = document.getElementById('modalBackdrop');
+    const title = document.getElementById('modalTitle');
+    const sub   = document.getElementById('modalSub');
+
+    document.getElementById('fName').value = '';
+    document.getElementById('fCategory').value = 'Masculinos';
+    document.getElementById('fMl').value = '';
+    document.getElementById('fPrice').value = 'Consultar';
+    document.getElementById('fDesc').value = '';
+    document.getElementById('fImage').value = '';
+    document.getElementById('imgPreview').style.display = 'none';
+
+    if (id) {
+      const p = products.find(x => x.id === id);
+      title.textContent = 'Editar Perfume';
+      sub.textContent   = 'Atualize os dados do perfume';
+      document.getElementById('fName').value = p.name;
+      document.getElementById('fCategory').value = p.category;
+      document.getElementById('fMl').value = p.ml;
+      document.getElementById('fPrice').value = p.price;
+      document.getElementById('fDesc').value = p.description;
+      document.getElementById('fImage').value = p.image;
+      previewImg();
+    } else {
+      title.textContent = 'Adicionar Perfume';
+      sub.textContent   = 'Preencha os dados do novo perfume';
+    }
+
+    modal.classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+  }
+
+  function saveProduct() {
+    const name = document.getElementById('fName').value.trim();
+    const cat  = document.getElementById('fCategory').value;
+    const ml   = document.getElementById('fMl').value.trim();
+    const price = document.getElementById('fPrice').value.trim();
+    const desc = document.getElementById('fDesc').value.trim();
+    const img  = document.getElementById('fImage').value.trim();
+
+    if (!name || !ml || !price || !desc) {
+      showToast('Preencha todos os campos obrigatórios!', 'error');
+      return;
+    }
+
+    if (editingId) {
+      const idx = products.findIndex(p => p.id === editingId);
+      products[idx] = { ...products[idx], name, category: cat, ml, description: desc, price, image: img };
+      showToast('Perfume atualizado com sucesso!', 'success');
+    } else {
+      const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+      products.push({ id: newId, name, category: cat, ml, description: desc, price, image: img });
+      showToast('Perfume adicionado com sucesso!', 'success');
+    }
+
+    saveData();
+    renderStats();
+    renderTable();
+    closeModal();
+  }
+
+  /* ── MODAL IMPORTAR JSON ── */
+  function openImportModal() {
+    document.getElementById('importModalBackdrop').classList.add('open');
+    document.getElementById('jsonFile').value = '';
+  }
+
+  function closeImportModal() {
+    document.getElementById('importModalBackdrop').classList.remove('open');
+  }
+
+  function importJSON() {
+    const fileInput = document.getElementById('jsonFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      showToast('Selecione um arquivo JSON!', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const importedData = JSON.parse(e.target.result);
+
+        if (!Array.isArray(importedData)) {
+          showToast('O arquivo deve conter um array de produtos!', 'error');
+          return;
+        }
+
+        // Rastrear nomes existentes para evitar duplicatas
+        const existingNames = new Set(products.map(p => p.name.toLowerCase()));
+        let addedCount = 0;
+        let skippedCount = 0;
+
+        importedData.forEach(newProduct => {
+          const nameLower = newProduct.name.toLowerCase();
+          
+          if (existingNames.has(nameLower)) {
+            skippedCount++;
+          } else {
+            // Gerar novo ID único
+            const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({
+              id: newId,
+              name: newProduct.name || 'Sem nome',
+              category: newProduct.category || 'Masculinos',
+              ml: newProduct.ml || '100ml',
+              description: newProduct.description || '',
+              price: newProduct.price || 'Consultar',
+              image: newProduct.image || ''
+            });
+            existingNames.add(nameLower);
+            addedCount++;
+          }
+        });
+
+        saveData();
+        renderStats();
+        renderTable();
+        closeImportModal();
+
+        const msg = `Importação concluída! ${addedCount} produto(s) adicionado(s)${skippedCount > 0 ? `, ${skippedCount} duplicata(s) ignorada(s)` : ''}.`;
+        showToast(msg, 'success');
+      } catch (error) {
+        showToast('Erro ao processar o arquivo JSON: ' + error.message, 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ── EDIT & DELETE ── */
+  function editProduct(id) { openModal(id); }
+
+  function deleteProduct(id) {
+    const p = products.find(x => x.id === id);
+    if (!confirm(`Remover "${p.name}" do catálogo?`)) return;
+    products = products.filter(x => x.id !== id);
+    saveData(); renderStats(); renderTable();
+    showToast('Perfume removido', 'error');
+  }
+
+  /* ── IMG PREVIEW ── */
+  function previewImg() {
+    const url = document.getElementById('fImage').value.trim();
+    const prev = document.getElementById('imgPreview');
+    if (url) { prev.src = url; prev.style.display = 'block'; }
+    else { prev.style.display = 'none'; }
+  }
+
+  /* ── EXPORT JSON ── */
+  function exportJSON() {
+    const blob = new Blob([JSON.stringify(products, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'products.json';
+    a.click();
+    showToast('JSON exportado!', 'success');
+  }
+
+  /* ── TOAST ── */
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'show ' + type;
+    clearTimeout(t._timeout);
+    t._timeout = setTimeout(() => t.className = '', 3000);
+  }
+
+  /* ── INIT ── */
+  loadData();
+</script>
+</body>
+</html>
